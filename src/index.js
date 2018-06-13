@@ -8,7 +8,7 @@ function normalizeNamespace(fn) {
       getterType = map;
       map = namespace;
       namespace = ``;
-    } else if (namespace.charAt(namespace.length - 1) !== `/`) {
+    } else if (namespace !== `` && namespace.charAt(namespace.length - 1) !== `/`) {
       namespace += `/`;
     }
 
@@ -17,6 +17,16 @@ function normalizeNamespace(fn) {
     /* eslint-enable */
 
     return fn(namespace, map, getterType, mutationType);
+  };
+}
+
+function normalizeHelperOptions(fn) {
+  return (namespace, options) => {
+    if (typeof namespace !== `string`) {
+      options = namespace;
+      namespace = ``;
+    }
+    return fn(namespace, options);
   };
 }
 
@@ -94,9 +104,9 @@ export const mapMultiRowFields = normalizeNamespace((
   }, {});
 });
 
-export const createHelpers = ({ getterType, mutationType }) => ({
+export const createHelpers = normalizeHelperOptions(((namespace, { getterType, mutationType }) => ({
   [getterType]: getField,
   [mutationType]: updateField,
-  mapFields: fields => mapFields(fields, getterType, mutationType),
-  mapMultiRowFields: paths => mapMultiRowFields(paths, getterType, mutationType),
-});
+  mapFields: fields => mapFields(namespace, fields, getterType, mutationType),
+  mapMultiRowFields: paths => mapMultiRowFields(namespace, paths, getterType, mutationType),
+})));
