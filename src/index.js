@@ -4,8 +4,10 @@ function normalizeNamespace(fn) {
   return (namespace, map, getterType, mutationType) => {
     /* eslint-disable no-param-reassign */
     if (typeof namespace !== `string`) {
-      mutationType = getterType;
-      getterType = map;
+      if (typeof mutationType !== `string`) {
+        mutationType = getterType;
+        getterType = map;
+      }
       map = namespace;
       namespace = ``;
     } else if (namespace.charAt(namespace.length - 1) !== `/`) {
@@ -97,6 +99,6 @@ export const mapMultiRowFields = normalizeNamespace((
 export const createHelpers = ({ getterType, mutationType }) => ({
   [getterType]: getField,
   [mutationType]: updateField,
-  mapFields: fields => mapFields(fields, getterType, mutationType),
-  mapMultiRowFields: paths => mapMultiRowFields(paths, getterType, mutationType),
+  mapFields: (namespace, fields) => mapFields(namespace, fields, getterType, mutationType),
+  mapMultiRowFields: (namespace, paths) => mapMultiRowFields(namespace, paths, getterType, mutationType),
 });
